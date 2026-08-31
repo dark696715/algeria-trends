@@ -1,0 +1,6 @@
+# متطلبات المشروع / Project dependencies
+requests>=2.31.0
+
+# اختياري: لجمع ترندات Google Trends (يُنصح به)
+# Optional: for Google Trends collection (recommended)
+pytrends>=4.9.2

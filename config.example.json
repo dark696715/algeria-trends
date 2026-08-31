@@ -1,0 +1,52 @@
+{
+  "general": {
+    "region": "DZ",
+    "language": "ar",
+    "max_trends_per_run": 8,
+    "dry_run": true,
+    "state_file": "state/seen.json",
+    "log_file": "logs/workflow.log"
+  },
+  "collectors": {
+    "youtube": {
+      "enabled": true,
+      "api_key": "ضع_مفتاح_YOUTUBE_DATA_API_هنا",
+      "max_results": 15,
+      "category_id": null
+    },
+    "google_trends": {
+      "enabled": true,
+      "geo": "DZ",
+      "max_results": 15
+    }
+  },
+  "content": {
+    "hashtags": ["#الجزائر", "#ترند", "#Algeria", "#DZ", "#تريند_الجزائر"],
+    "include_links": true,
+    "brand_signature": "",
+    "intro_line": "🔥 أبرز الترندات في الجزائر الآن:"
+  },
+  "publishers": {
+    "telegram": {
+      "enabled": true,
+      "bot_token": "ضع_توكن_بوت_تيليغرام_هنا",
+      "chat_id": "@اسم_قناتك_او_-100xxxxxxxxxx"
+    },
+    "facebook": {
+      "enabled": false,
+      "page_id": "معرّف_صفحتك",
+      "page_access_token": "توكن_وصول_الصفحة"
+    },
+    "instagram": {
+      "enabled": false,
+      "ig_user_id": "معرّف_حساب_الأعمال_انستغرام",
+      "access_token": "توكن_الوصول_طويل_الأمد",
+      "_note": "النشر على انستغرام يتطلب أن تكون الصورة/الفيديو متاحة على رابط عام (public URL)"
+    },
+    "tiktok": {
+      "enabled": false,
+      "access_token": "توكن_تيك_توك",
+      "_note": "يتطلب تطبيق Content Posting API معتمد من TikTok (قد يتطلب مراجعة وموافقة)"
+    }
+  }
+}

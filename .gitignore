@@ -1,0 +1,9 @@
+# ملفات وإعدادات لا تُرفع
+config.json
+state/
+logs/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
