@@ -1,0 +1,72 @@
+name: نشر ترندات الجزائر تلقائياً
+
+# جدولة تلقائية مجانية عبر GitHub Actions (تعمل 24/7 دون الحاجة لجهازك).
+on:
+  schedule:
+    - cron: '0 */6 * * *'      # كل 6 ساعات (عدّلها كما تشاء)
+  workflow_dispatch:            # يسمح بالتشغيل اليدوي من تبويب Actions
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: جلب الكود
+        uses: actions/checkout@v4
+
+      - name: تجهيز Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: تثبيت المتطلبات
+        run: pip install -r requirements.txt
+
+      - name: استرجاع حالة "ما نُشر" (لمنع التكرار بين التشغيلات)
+        uses: actions/cache@v4
+        with:
+          path: state
+          key: seen-state-${{ github.run_id }}
+          restore-keys: seen-state-
+
+      - name: بناء config.json من الأسرار (Secrets)
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          TIKTOK_TOKEN: ${{ secrets.TIKTOK_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os
+          env = os.environ.get
+          cfg = {
+            "general": {
+              "region": "DZ", "language": "ar", "max_trends_per_run": 8,
+              "dry_run": False, "state_file": "state/seen.json", "log_file": "logs/workflow.log"
+            },
+            "collectors": {
+              "youtube": {"enabled": bool(env("YOUTUBE_API_KEY")), "api_key": env("YOUTUBE_API_KEY", ""), "max_results": 15, "category_id": None},
+              "google_trends": {"enabled": True, "geo": "DZ", "max_results": 15},
+            },
+            "content": {
+              "hashtags": ["#الجزائر", "#ترند", "#Algeria", "#DZ", "#تريند_الجزائر"],
+              "include_links": True, "brand_signature": "",
+              "intro_line": "🔥 أبرز الترندات في الجزائر الآن:"
+            },
+            "publishers": {
+              "telegram": {"enabled": bool(env("TELEGRAM_BOT_TOKEN")), "bot_token": env("TELEGRAM_BOT_TOKEN", ""), "chat_id": env("TELEGRAM_CHAT_ID", "")},
+              "facebook": {"enabled": bool(env("FB_PAGE_TOKEN")), "page_id": env("FB_PAGE_ID", ""), "page_access_token": env("FB_PAGE_TOKEN", "")},
+              "instagram": {"enabled": bool(env("IG_TOKEN")), "ig_user_id": env("IG_USER_ID", ""), "access_token": env("IG_TOKEN", "")},
+              "tiktok": {"enabled": bool(env("TIKTOK_TOKEN")), "access_token": env("TIKTOK_TOKEN", "")},
+            },
+          }
+          with open("config.json", "w", encoding="utf-8") as f:
+              json.dump(cfg, f, ensure_ascii=False, indent=2)
+          print("✅ تم إنشاء config.json من الأسرار.")
+          PY
+
+      - name: تشغيل الـ workflow
+        run: python main.py
